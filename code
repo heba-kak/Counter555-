@@ -1,0 +1,44 @@
+// heba kak..
+#include <LPC11xx.h>  
+#define GPIO0DIR (*((volatile unsigned long *)0x50008000))  
+#define GPIO0DATA (*((volatile unsigned long *)0x50003FFC))  
+#define GPIO1DIR (*((volatile unsigned long *)0x50018000))  
+#define GPIO1DATA (*((volatile unsigned long *)0x50013FFC)) 
+#define GPIO2DIR (*((volatile unsigned long *)0x50028000))  
+#define GPIO2DATA (*((volatile unsigned long *)0x50023FFC))  
+int main(void) {  
+    int seven_seg_encoder[] = {  
+        0xC0, 
+        0xF9, 
+        0xA4,  
+        0xB0,  
+        0x99,  
+        0x92,  
+        0x82,  
+        0xF8, 
+        0x80, 
+        0x90   };  
+    int num = 555; 
+    int i;  
+    GPIO2DIR |= 0xFF;     
+    GPIO0DIR |= 0b1100;  
+    GPIO1DIR |= 0x01;     
+	
+    while (1) {  
+        GPIO0DATA = 0b0100; 
+        GPIO2DATA = seven_seg_encoder[(num / 100) % 10]; 
+        for (i = 0; i < 40000; i++); 
+
+        GPIO0DATA = 0b1000;  
+        GPIO2DATA = seven_seg_encoder[(num / 10) % 10]; 
+        for (i = 0; i < 40000; i++); 
+
+        GPIO0DATA = 0b0001; 
+        GPIO2DATA = seven_seg_encoder[num % 10]; 
+        for (i = 0; i < 40000; i++); 
+        num--;  
+        if (num < 0) {  
+            GPIO1DATA |= 0x01;   
+            while (1);     }  
+    }    return 0; 
+}
